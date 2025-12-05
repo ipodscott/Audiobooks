@@ -1,0 +1,33 @@
+{
+  "id": "archive-audiobooks-pwa",
+  "name": "Archive Audiobooks",
+  "short_name": "Audiobooks",
+  "description": "Discover and listen to free audiobooks from the Internet Archive",
+  "start_url": "./index.html?app=archive-audiobooks",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0d0d0d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "entertainment",
+    "education",
+    "books"
+  ],
+  "lang": "en-US",
+  "dir": "ltr"
+}

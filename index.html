@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discover and listen to audiobooks from the Internet Archive">
+    <meta name="theme-color" content="#0d0d0d">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Archive Audiobooks</title>
+    
+    <!-- Plyr.js -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0d0d0d;
+            --bg-secondary: #161616;
+            --bg-tertiary: #1f1f1f;
+            --bg-elevated: #252525;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666;
+            --accent: #d4a574;
+            --accent-dim: #8b6f4a;
+            --accent-glow: rgba(212, 165, 116, 0.15);
+            --border: #2a2a2a;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Subtle background texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(212, 165, 116, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(212, 165, 116, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(13, 13, 13, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .logo h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .logo span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Search */
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            transition: var(--transition);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent-dim);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .search-box input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1rem;
+            padding: 0.5rem;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            background: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Main content */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 7rem 2rem 12rem;
+        }
+
+        /* Hero section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0 3rem;
+            animation: fadeUp 0.8s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 400;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .hero h2 em {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border-color: var(--accent-dim);
+        }
+
+        /* Results grid */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-header h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        .results-count {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Book card */
+        .book-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            animation: fadeIn 0.5s ease-out backwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .book-card:hover {
+            border-color: var(--accent-dim);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .book-cover {
+            aspect-ratio: 1;
+            background: var(--bg-tertiary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .book-card:hover .book-cover img {
+            transform: scale(1.05);
+        }
+
+        .book-cover .play-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .book-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-overlay-btn {
+            width: 64px;
+            height: 64px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+            font-size: 1.5rem;
+            transform: scale(0.8);
+            transition: var(--transition);
+        }
+
+        .book-card:hover .play-overlay-btn {
+            transform: scale(1);
+        }
+
+        .book-info {
+            padding: 1.25rem;
+        }
+
+        .book-info h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-info .author {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .book-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .book-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Player panel */
+        .player-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            transform: translateY(100%);
+            transition: var(--transition);
+            z-index: 200;
+        }
+
+        .player-panel.active {
+            transform: translateY(0);
+        }
+
+        .player-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+
+        .player-main {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .player-cover {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .player-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .player-info h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-info p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-controls {
+            flex: 2;
+            max-width: 600px;
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-dim);
+        }
+
+        /* Book detail modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 300;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            z-index: 301;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            gap: 1.5rem;
+            padding: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-cover {
+            width: 180px;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .modal-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-title {
+            flex: 1;
+        }
+
+        .modal-title h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .modal-title .author {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title .description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+            background: var(--bg-elevated);
+        }
+
+        .modal-tracks {
+            padding: 1.5rem 2rem 2rem;
+        }
+
+        .modal-tracks h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .track-item:hover {
+            background: var(--bg-elevated);
+        }
+
+        .track-item.playing {
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-dim);
+        }
+
+        .track-number {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .track-item.playing .track-number {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .track-title {
+            flex: 1;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-duration {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Plyr customization */
+        .plyr {
+            --plyr-color-main: var(--accent);
+            --plyr-audio-controls-background: transparent;
+            --plyr-audio-control-color: var(--text-secondary);
+            --plyr-audio-control-color-hover: var(--text-primary);
+        }
+
+        .plyr__controls {
+            padding: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-wrap: wrap;
+            }
+
+            .search-container {
+                order: 3;
+                width: 100%;
+                max-width: none;
+            }
+
+            main {
+                padding: 6rem 1rem 10rem;
+            }
+
+            .hero {
+                padding: 2rem 0;
+            }
+
+            .modal-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .player-main {
+                flex-wrap: wrap;
+            }
+
+            .player-controls {
+                width: 100%;
+                order: 3;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">📚</span>
+                <h1>Archive Audiobooks</h1>
+            </a>
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search audiobooks by title, author, or subject...">
+                    <button class="search-btn" id="searchBtn">Search</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" id="heroSection">
+            <h2>Discover <em>timeless</em> stories</h2>
+            <p>Explore thousands of free audiobooks from the Internet Archive's vast collection</p>
+        </section>
+
+        <section class="filters" id="filters">
+            <button class="filter-btn active" data-collection="librivoxaudio">LibriVox</button>
+            <button class="filter-btn" data-collection="audio_bookspoetry">Books &amp; Poetry</button>
+            <button class="filter-btn" data-collection="audio_religion">Religion</button>
+            <button class="filter-btn" data-collection="audio_tech">Tech &amp; Science</button>
+            <button class="filter-btn" data-collection="audio_music">Music</button>
+        </section>
+
+        <section id="resultsSection">
+            <div class="results-header">
+                <h3 id="resultsTitle">Popular Audiobooks</h3>
+                <span class="results-count" id="resultsCount"></span>
+            </div>
+            <div class="results-grid" id="resultsGrid">
+                <!-- Results will be populated here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Player Panel -->
+    <div class="player-panel" id="playerPanel">
+        <div class="player-content">
+            <div class="player-main">
+                <div class="player-cover">
+                    <img id="playerCover" src="" alt="Album cover">
+                </div>
+                <div class="player-info">
+                    <h4 id="playerTitle">Select a track to play</h4>
+                    <p id="playerAuthor"></p>
+                </div>
+                <div class="player-controls">
+                    <audio id="audioPlayer"></audio>
+                </div>
+                <div class="player-actions">
+                    <button class="action-btn" id="prevTrackBtn" title="Previous">⏮</button>
+                    <button class="action-btn" id="nextTrackBtn" title="Next">⏭</button>
+                    <button class="action-btn" id="playlistBtn" title="View playlist">☰</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Detail Modal -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="bookModal">
+        <button class="modal-close" id="modalClose">✕</button>
+        <div class="modal-header">
+            <div class="modal-cover">
+                <img id="modalCover" src="" alt="Book cover">
+            </div>
+            <div class="modal-title">
+                <h2 id="modalTitle"></h2>
+                <p class="author" id="modalAuthor"></p>
+                <p class="description" id="modalDescription"></p>
+            </div>
+        </div>
+        <div class="modal-tracks">
+            <h3>Chapters</h3>
+            <div class="track-list" id="trackList">
+                <!-- Tracks will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Plyr.js -->
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    
+    <script>
+        // State management
+        const state = {
+            currentCollection: 'librivoxaudio',
+            currentBook: null,
+            currentTracks: [],
+            currentTrackIndex: 0,
+            searchQuery: '',
+            results: [],
+            player: null
+        };
+
+        // DOM elements
+        const elements = {
+            searchInput: document.getElementById('searchInput'),
+            searchBtn: document.getElementById('searchBtn'),
+            resultsGrid: document.getElementById('resultsGrid'),
+            resultsTitle: document.getElementById('resultsTitle'),
+            resultsCount: document.getElementById('resultsCount'),
+            playerPanel: document.getElementById('playerPanel'),
+            playerCover: document.getElementById('playerCover'),
+            playerTitle: document.getElementById('playerTitle'),
+            playerAuthor: document.getElementById('playerAuthor'),
+            audioPlayer: document.getElementById('audioPlayer'),
+            prevTrackBtn: document.getElementById('prevTrackBtn'),
+            nextTrackBtn: document.getElementById('nextTrackBtn'),
+            playlistBtn: document.getElementById('playlistBtn'),
+            modalOverlay: document.getElementById('modalOverlay'),
+            bookModal: document.getElementById('bookModal'),
+            modalClose: document.getElementById('modalClose'),
+            modalCover: document.getElementById('modalCover'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalAuthor: document.getElementById('modalAuthor'),
+            modalDescription: document.getElementById('modalDescription'),
+            trackList: document.getElementById('trackList'),
+            heroSection: document.getElementById('heroSection'),
+            filters: document.getElementById('filters')
+        };
+
+        // Initialize Plyr
+        state.player = new Plyr(elements.audioPlayer, {
+            controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume'],
+        });
+
+        // Archive.org API functions
+        async function searchArchive(query, collection = 'librivoxaudio', rows = 50) {
+            let searchQuery = `collection:${collection} AND mediatype:audio`;
+            if (query) {
+                searchQuery += ` AND (title:${query} OR creator:${query} OR subject:${query})`;
+            }
+            
+            const url = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(searchQuery)}&fl=identifier,title,creator,description,date,downloads&sort=downloads desc&rows=${rows}&output=json`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return data.response.docs;
+            } catch (error) {
+                console.error('Search error:', error);
+                return [];
+            }
+        }
+
+        async function getBookDetails(identifier) {
+            const url = `https://archive.org/metadata/${identifier}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Metadata error:', error);
+                return null;
+            }
+        }
+
+        // UI functions
+        function showLoading() {
+            elements.resultsGrid.innerHTML = `
+                <div class="loading" style="grid-column: 1 / -1;">
+                    <div class="spinner"></div>
+                    <p>Searching the archive...</p>
+                </div>
+            `;
+        }
+
+        function showNoResults() {
+            elements.resultsGrid.innerHTML = `
+                <div class="no-results" style="grid-column: 1 / -1;">
+                    <div class="no-results-icon">📭</div>
+                    <p>No audiobooks found. Try a different search term.</p>
+                </div>
+            `;
+        }
+
+        function getCoverUrl(identifier) {
+            return `https://archive.org/services/img/${identifier}`;
+        }
+
+        function renderResults(results) {
+            if (!results.length) {
+                showNoResults();
+                elements.resultsCount.textContent = '';
+                return;
+            }
+
+            elements.resultsCount.textContent = `${results.length} audiobooks`;
+            
+            elements.resultsGrid.innerHTML = results.map((book, index) => `
+                <div class="book-card" data-identifier="${book.identifier}" style="animation-delay: ${index * 0.05}s">
+                    <div class="book-cover">
+                        <img src="${getCoverUrl(book.identifier)}" alt="${book.title}" loading="lazy" 
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231f1f1f%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23666%22 font-size=%2240%22>📖</text></svg>'">
+                        <div class="play-overlay">
+                            <div class="play-overlay-btn">▶</div>
+                        </div>
+                    </div>
+                    <div class="book-info">
+                        <h4>${book.title || 'Unknown Title'}</h4>
+                        <p class="author">${book.creator || 'Unknown Author'}</p>
+                        <div class="book-meta">
+                            <span>${book.date ? new Date(book.date).getFullYear() : ''}</span>
+                            <span>${book.downloads ? `${Number(book.downloads).toLocaleString()} plays` : ''}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.book-card').forEach(card => {
+                card.addEventListener('click', () => openBookModal(card.dataset.identifier));
+            });
+        }
+
+        async function openBookModal(identifier) {
+            elements.modalOverlay.classList.add('active');
+            elements.bookModal.classList.add('active');
+            elements.trackList.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading chapters...</p>
+                </div>
+            `;
+
+            const book = await getBookDetails(identifier);
+            if (!book) return;
+
+            state.currentBook = book;
+            
+            elements.modalCover.src = getCoverUrl(identifier);
+            elements.modalTitle.textContent = book.metadata.title || 'Unknown Title';
+            elements.modalAuthor.textContent = book.metadata.creator || 'Unknown Author';
+            elements.modalDescription.textContent = book.metadata.description 
+                ? book.metadata.description.replace(/<[^>]*>/g, '').substring(0, 300) + '...'
+                : 'No description available.';
+
+            // Filter audio files - prefer 128Kbps MP3, deduplicate by base filename
+            const audioFiles = book.files.filter(f => 
+                f.name && 
+                f.name.endsWith('.mp3') && 
+                !f.name.includes('_files.xml') &&
+                !f.name.includes('_meta.') &&
+                f.source !== 'metadata'
+            );
+
+            // Deduplicate: group by base name (strip bitrate suffixes) and pick the best version
+            const fileMap = new Map();
+            const formatPriority = { '128Kbps MP3': 1, 'VBR MP3': 2, '64Kbps MP3': 3 };
+
+            audioFiles.forEach(f => {
+                // Strip common bitrate/format suffixes to get canonical base name
+                const baseName = f.name.toLowerCase()
+                    .replace(/_128kb\.mp3$/i, '.mp3')
+                    .replace(/_64kb\.mp3$/i, '.mp3')
+                    .replace(/_vbr\.mp3$/i, '.mp3')
+                    .replace(/[-_](128|64|96|192|256|320)(kbps?|kb)?\.mp3$/i, '.mp3');
+
+                const existing = fileMap.get(baseName);
+                const currentPriority = formatPriority[f.format] || 99;
+                const existingPriority = existing ? (formatPriority[existing.format] || 99) : 999;
+
+                if (!existing || currentPriority < existingPriority) {
+                    fileMap.set(baseName, f);
+                }
+            });
+
+            const dedupedFiles = Array.from(fileMap.values())
+                .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+            state.currentTracks = dedupedFiles.map(f => ({
+                name: f.name,
+                title: f.title || f.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' '),
+                url: `https://archive.org/download/${identifier}/${encodeURIComponent(f.name)}`,
+                duration: f.length && !isNaN(parseFloat(f.length)) ? f.length : null
+            }));
+
+            renderTrackList();
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds || isNaN(parseFloat(seconds))) return '';
+            const totalSecs = parseFloat(seconds);
+            const mins = Math.floor(totalSecs / 60);
+            const secs = Math.floor(totalSecs % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function renderTrackList() {
+            if (!state.currentTracks.length) {
+                elements.trackList.innerHTML = '<p style="color: var(--text-muted); padding: 1rem;">No audio tracks found.</p>';
+                return;
+            }
+
+            elements.trackList.innerHTML = state.currentTracks.map((track, index) => `
+                <div class="track-item ${index === state.currentTrackIndex && state.currentBook ? 'playing' : ''}" data-index="${index}">
+                    <span class="track-number">${index + 1}</span>
+                    <span class="track-title">${track.title}</span>
+                    <span class="track-duration">${formatDuration(track.duration)}</span>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.track-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.dataset.index);
+                    playTrack(index);
+                });
+            });
+        }
+
+        function playTrack(index) {
+            if (index < 0 || index >= state.currentTracks.length) return;
+            
+            state.currentTrackIndex = index;
+            const track = state.currentTracks[index];
+            
+            // Update player UI
+            elements.playerPanel.classList.add('active');
+            elements.playerCover.src = getCoverUrl(state.currentBook.metadata.identifier);
+            elements.playerTitle.textContent = track.title;
+            elements.playerAuthor.textContent = state.currentBook.metadata.creator || '';
+            
+            // Play audio
+            elements.audioPlayer.src = track.url;
+            state.player.play();
+            
+            // Update track list highlighting
+            renderTrackList();
+            
+            // Hide hero when playing
+            elements.heroSection.style.display = 'none';
+        }
+
+        function closeModal() {
+            elements.modalOverlay.classList.remove('active');
+            elements.bookModal.classList.remove('active');
+        }
+
+        // Event listeners
+        async function performSearch() {
+            const query = elements.searchInput.value.trim();
+            state.searchQuery = query;
+            
+            showLoading();
+            elements.resultsTitle.textContent = query ? `Results for "${query}"` : 'Popular Audiobooks';
+            
+            const results = await searchArchive(query, state.currentCollection);
+            state.results = results;
+            renderResults(results);
+        }
+
+        elements.searchBtn.addEventListener('click', performSearch);
+        elements.searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.currentCollection = btn.dataset.collection;
+                await performSearch();
+            });
+        });
+
+        // Modal controls
+        elements.modalClose.addEventListener('click', closeModal);
+        elements.modalOverlay.addEventListener('click', closeModal);
+
+        // Player controls
+        elements.prevTrackBtn.addEventListener('click', () => playTrack(state.currentTrackIndex - 1));
+        elements.nextTrackBtn.addEventListener('click', () => playTrack(state.currentTrackIndex + 1));
+        elements.playlistBtn.addEventListener('click', () => {
+            if (state.currentBook) {
+                openBookModal(state.currentBook.metadata.identifier);
+            }
+        });
+
+        // Auto-play next track
+        state.player.on('ended', () => {
+            if (state.currentTrackIndex < state.currentTracks.length - 1) {
+                playTrack(state.currentTrackIndex + 1);
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === ' ' && !elements.searchInput.matches(':focus')) {
+                e.preventDefault();
+                state.player.togglePlay();
+            }
+        });
+
+        // Initial load
+        performSearch();
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+    </script>
+</body>
+</html>
