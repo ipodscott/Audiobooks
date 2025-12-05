@@ -940,8 +940,15 @@
                 <div class="no-results" style="grid-column: 1 / -1;">
                     <div class="no-results-icon">📭</div>
                     <p>No audiobooks found. Try a different search term.</p>
+                    <button class="search-btn" id="resetSearchBtn" style="margin-top: 1rem;">Reset Search</button>
                 </div>
             `;
+
+            document.getElementById('resetSearchBtn').addEventListener('click', () => {
+                elements.searchInput.value = '';
+                state.searchQuery = '';
+                performSearch();
+            });
         }
 
         function getCoverUrl(identifier) {
