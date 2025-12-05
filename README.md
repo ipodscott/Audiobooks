@@ -2,7 +2,7 @@
 
 A progressive web app for discovering and listening to free audiobooks from the Internet Archive.
 
-<a href="https://books.dieselpunkindustries.com/audio-books/" target="_blank" rel="noopener noreferrer">Audio Books at books.dieselpunkindustries.com</a>
+<a href="https://books.dieselpunkindustries.com/audio-books/" target="_blank" rel="noopener noreferrer">Audiobooks at books.dieselpunkindustries.com</a>
 
 
 ![Archive Audiobooks Screenshot](screenshot1.png)
